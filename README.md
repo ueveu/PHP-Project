@@ -63,12 +63,18 @@ A feature-rich PHP web application that provides user authentication, content ma
 5. **Contact**
    - Use the contact form to send messages to administrators
 
-### Admin Features
+### Admin Access
 
-1. Access the admin dashboard at `/admin`
-2. Manage users, posts, and gallery content
-3. View contact form submissions
-4. Monitor system statistics
+To access the admin dashboard:
+1. Login with these credentials:
+   - Alias: `admin`
+   - Password: `Passw0rd!`
+2. Access the admin dashboard at `/admin`
+3. Features available:
+   - User management
+   - Post management
+   - Contact message overview
+   - System statistics
 
 ## 🔒 Security
 
