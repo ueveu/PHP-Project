@@ -305,11 +305,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    const form = document.querySelector('form');
+    const inputs = document.querySelectorAll('[data-validate]');
+
     // Add input event listeners for live validation
-    document.querySelectorAll('[data-validate]').forEach(input => {
+    inputs.forEach(input => {
         input.addEventListener('input', function() {
             validateField(this);
         });
+    });
+
+    // Add form submit handler
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate all fields
+        let isValid = true;
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+
+        // If all validations pass, submit the form
+        if (isValid) {
+            this.submit();
+        }
     });
 
     function validateField(input) {
@@ -359,6 +380,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 validateField(confirmInput);
             }
         }
+
+        return isValid;
     }
 });
 </script>
