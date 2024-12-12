@@ -1,127 +1,229 @@
-# Marvin Web Application
+# Marvin - PHP Weblog System
 
-A feature-rich PHP web application that provides user authentication, content management, gallery functionality, and more.
+<details>
+<summary>🇩🇪 Deutsche Version</summary>
+
+Ein modernes PHP-Blogsystem mit Benutzer-Authentifizierung, Admin-Dashboard und Kontaktformular. Verwendet Textdateien zur Datenspeicherung.
 
 ## 🚀 Features
 
-- User Authentication (Login/Register)
-- Blog Post Creation and Management
-- Image Gallery
-- Contact Form
-- Calculator Tool
-- Admin Dashboard
-- Responsive Design
+- **Benutzer-Authentifizierung**
+  - Registrierung mit Vorname, Nachname und Alias
+  - Login mit Alias und Passwort
+  - "Angemeldet bleiben" Funktion
+  - Sicheres Passwort-Hashing
+
+- **Blog-System**
+  - Beiträge erstellen und verwalten
+  - Übersichtliche Beitragsliste
+  - Detailansicht für einzelne Beiträge
+
+- **Admin-Dashboard**
+  - Benutzerübersicht
+  - Statistiken zu Beiträgen und Benutzern
+  - Kontaktanfragen-Verwaltung
+  - System-Wartungsfunktionen
+
+- **Kontaktformular**
+  - Einfache Kontaktaufnahme
+  - Validierung der Eingaben
+  - Speicherung der Nachrichten
+
+## 📋 Voraussetzungen
+
+- PHP 7.4 oder höher
+- Apache Webserver
+- Schreibrechte für das `data` Verzeichnis (wichtig für die Datenspeicherung)
+
+## 🛠 Installation
+
+1. **Projekt herunterladen**
+   ```bash
+   git clone https://github.com/IhrUsername/marvin.git
+   cd marvin
+   ```
+
+2. **Webserver konfigurieren**
+   - Projekt in das Webserver-Verzeichnis kopieren (z.B. `C:\xampp\htdocs\marvin` für XAMPP)
+   - Apache mod_rewrite aktivieren (falls noch nicht geschehen)
+
+3. **Datenspeicherung einrichten**
+   - Erstellen Sie das Verzeichnis `data` im Projektroot (falls nicht vorhanden)
+   - Setzen Sie die korrekten Schreibrechte:
+     ```bash
+     chmod 755 data/
+     chmod 644 data/*.txt
+     ```
+   - Das System erstellt automatisch die benötigten .txt Dateien
+
+## 👤 Admin-Zugang
+
+Der erste registrierte Benutzer wird automatisch zum Administrator. 
+Alternativ können Sie sich mit diesen Zugangsdaten einloggen:
+
+- **Alias:** admin
+- **Passwort:** Passw0rd!
+
+## 🔒 Sicherheit
+
+- Passwort-Hashing mit PHP's password_hash
+- XSS-Schutz durch htmlspecialchars
+- Validierung aller Eingaben
+- Schutz vor CSRF-Angriffen
+
+## 📁 Projektstruktur
+
+```
+marvin/
+├── admin/           # Admin-Bereich
+├── assets/         # CSS, JavaScript, Bilder
+├── data/           # Datenspeicherung (.txt Dateien)
+│   ├── users.txt         # Benutzerdaten
+│   ├── posts.txt         # Blog-Beiträge
+│   └── contact_messages.txt  # Kontaktanfragen
+├── includes/       # PHP-Funktionen
+├── templates/      # HTML-Templates
+└── index.php       # Startseite
+```
+
+## 🛟 Fehlerbehebung
+
+### Häufige Probleme
+
+1. **Schreibrechte-Fehler**
+   - Überprüfen Sie die Berechtigungen des `data` Verzeichnisses
+   - Stellen Sie sicher, dass der Webserver-Benutzer Schreibrechte hat
+   ```bash
+   chmod 755 data/
+   chmod 644 data/*.txt
+   ```
+
+2. **Seite nicht gefunden**
+   - Überprüfen Sie die .htaccess-Datei
+   - Aktivieren Sie mod_rewrite in Apache
+
+## 📧 Support
+
+Bei Fragen oder Problemen:
+- Issue auf GitHub öffnen
+- Kontaktformular auf der Website nutzen
+
+## 📝 Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Details in der [LICENSE](LICENSE) Datei.
+
+</details>
+
+<details open>
+<summary>🇬🇧 English Version</summary>
+
+A modern PHP blog system with user authentication, admin dashboard, and contact form. Uses text files for data storage.
+
+## 🚀 Features
+
+- **User Authentication**
+  - Registration with first name, last name, and alias
+  - Login with alias and password
+  - "Remember me" functionality
+  - Secure password hashing
+
+- **Blog System**
+  - Create and manage posts
+  - Clear post overview
+  - Detailed view for individual posts
+
+- **Admin Dashboard**
+  - User overview
+  - Statistics for posts and users
+  - Contact request management
+  - System maintenance functions
+
+- **Contact Form**
+  - Easy contact submission
+  - Input validation
+  - Message storage
 
 ## 📋 Prerequisites
 
 - PHP 7.4 or higher
-- MySQL/MariaDB
 - Apache Web Server
-- XAMPP (recommended) or similar local development environment
+- Write permissions for the `data` directory (crucial for data storage)
 
-## 🔧 Installation
+## 🛠 Installation
 
-1. Clone the repository to your local machine:
+1. **Download Project**
    ```bash
-   git clone https://github.com/yourusername/marvin.git
+   git clone https://github.com/IhrUsername/marvin.git
+   cd marvin
    ```
 
-2. Place the project in your web server's root directory:
-   - For XAMPP: `C:\xampp\htdocs\marvin`
-   - For other servers: Refer to your server's documentation
+2. **Configure Web Server**
+   - Copy project to web server directory (e.g., `C:\xampp\htdocs\marvin` for XAMPP)
+   - Enable Apache mod_rewrite (if not already enabled)
 
-3. Import the database:
-   - Open phpMyAdmin
-   - Create a new database named 'marvin'
-   - Import the database structure from `data/database.sql`
+3. **Set Up Data Storage**
+   - Create the `data` directory in the project root (if it doesn't exist)
+   - Set the correct permissions:
+     ```bash
+     chmod 755 data/
+     chmod 644 data/*.txt
+     ```
+   - The system will automatically create the necessary .txt files
 
-4. Configure database connection:
-   - Navigate to `includes/config.php`
-   - Update the database credentials if necessary
+## 👤 Admin Access
 
-## 💻 Usage
+The first registered user automatically becomes an administrator.
+Alternatively, you can log in with these credentials:
 
-### User Features
-
-1. **Registration & Login**
-   - Visit `/register.php` to create a new account
-   - Use `/login.php` to access your account
-   - Logout via `/logout.php`
-
-2. **Blog Posts**
-   - Create new posts through `/create-post.php`
-   - View posts on the homepage and individual post pages
-   - Comment on posts (requires login)
-
-3. **Gallery**
-   - Browse images in the gallery section
-   - Upload new images (requires login)
-
-4. **Calculator**
-   - Access the calculator tool for basic calculations
-
-5. **Contact**
-   - Use the contact form to send messages to administrators
-
-### Admin Access
-
-To access the admin dashboard:
-1. Login with these credentials:
-   - Alias: `admin`
-   - Password: `Passw0rd!`
-2. Access the admin dashboard at `/admin`
-3. Features available:
-   - User management
-   - Post management
-   - Contact message overview
-   - System statistics
+- **Alias:** admin
+- **Password:** Passw0rd!
 
 ## 🔒 Security
 
-- All user passwords are securely hashed
-- Input validation and sanitization implemented
-- CSRF protection enabled
-- XSS prevention measures in place
+- Password hashing with PHP's password_hash
+- XSS protection through htmlspecialchars
+- Input validation
+- CSRF attack protection
 
 ## 📁 Project Structure
 
 ```
 marvin/
-├── admin/           # Admin dashboard files
-├── assets/          # Static assets (CSS, JS, images)
-├── data/           # Database files
-├── includes/       # PHP includes and functions
-├── templates/      # Template files
-├── index.php       # Homepage
-├── login.php       # User login
-├── register.php    # User registration
-├── create-post.php # Post creation
-├── post.php        # Single post view
-├── gallery.php     # Image gallery
-├── contact.php     # Contact form
-├── calculator.php  # Calculator tool
-└── logout.php      # Logout handler
+├── admin/           # Admin area
+├── assets/         # CSS, JavaScript, images
+├── data/           # Data storage (.txt files)
+│   ├── users.txt         # User data
+│   ├── posts.txt         # Blog posts
+│   └── contact_messages.txt  # Contact requests
+├── includes/       # PHP functions
+├── templates/      # HTML templates
+└── index.php       # Homepage
 ```
 
-## 🤝 Contributing
+## 🛟 Troubleshooting
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Common Issues
+
+1. **Permission Errors**
+   - Check the permissions of the `data` directory
+   - Ensure the web server user has write permissions
+   ```bash
+   chmod 755 data/
+   chmod 644 data/*.txt
+   ```
+
+2. **Page Not Found**
+   - Check the .htaccess file
+   - Enable mod_rewrite in Apache
+
+## 📧 Support
+
+For questions or issues:
+- Open an issue on GitHub
+- Use the contact form on the website
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-For support, please:
-- Open an issue in the repository
-- Contact the administrator through the contact form
-- Check the documentation in the admin dashboard
-
-## 🔄 Updates
-
-Check the repository regularly for updates and new features. Pull the latest changes to stay up to date.
+</details>
