@@ -195,7 +195,7 @@ function loginUser($alias, $password, $remember = false) {
                 // Set session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['alias'] = $user['alias'];
-                $_SESSION['is_admin'] = $user['is_admin'];
+                $_SESSION['is_admin'] = $user['is_admin'] ?? false;
                 
                 // Set remember cookie if requested
                 if ($remember) {

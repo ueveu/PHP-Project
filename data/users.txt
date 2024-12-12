@@ -1,0 +1,1 @@
+{"id":"675aa6c91ec1c","firstname":"Marvin","lastname":"Knochenhauer","alias":"admin","password":"$2y$10$5tjdufrxQ\/jIOlwaLLzWwOH5\/EnavYgoaAAB8IijbrHazbQunZ8dm","created_at":"2024-12-12 10:03:05","is_admin":true}
