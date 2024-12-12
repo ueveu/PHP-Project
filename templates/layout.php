@@ -3,58 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo SITE_NAME; ?> - <?php echo $pageTitle ?? 'Willkommen'; ?></title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title><?php echo htmlspecialchars($pageTitle ?? 'Marvin'); ?></title>
+    <link rel="stylesheet" href="/marvin/assets/css/style.css">
+    <?php if (strpos($_SERVER['PHP_SELF'], 'admin/') !== false): ?>
+        <link rel="stylesheet" href="/marvin/assets/css/admin.css">
+    <?php endif; ?>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">
-                <a href="index.php"><?php echo SITE_NAME; ?></a>
+                <a href="/marvin/index.php">Marvin</a>
             </div>
+            
+            <!-- Mobile menu button -->
+            <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+
             <ul class="nav-links">
-                <li><a href="index.php">Home</a></li>
-                <li><a href="calculator.php">Rechner</a></li>
-                <li><a href="gallery.php">Bildergalerie</a></li>
-                <li><a href="contact.php">Kontakt</a></li>
+                <li><a href="/marvin/index.php">Home</a></li>
+                <li><a href="/marvin/gallery.php">Galerie</a></li>
+                <li><a href="/marvin/calculator.php">Rechner</a></li>
+                <li><a href="/marvin/contact.php">Kontakt</a></li>
                 <?php if (isLoggedIn()): ?>
-                    <li><a href="create-post.php">Neuer Beitrag</a></li>
-                    <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
-                        <li><a href="admin/">Admin</a></li>
+                    <li><a href="/marvin/create-post.php">Beitrag erstellen</a></li>
+                    <?php if (isAdmin()): ?>
+                        <li><a href="/marvin/admin/index.php">Admin</a></li>
                     <?php endif; ?>
-                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION['firstname']); ?> - <?php echo htmlspecialchars($_SESSION['alias']); ?>)</a></li>
+                    <li><a href="/marvin/logout.php">Logout</a></li>
                 <?php else: ?>
-                    <li><a href="login.php">Login</a></li>
-                    <li><a href="register.php">Registrieren</a></li>
+                    <li><a href="/marvin/login.php">Login</a></li>
+                    <li><a href="/marvin/register.php">Registrieren</a></li>
                 <?php endif; ?>
             </ul>
         </nav>
     </header>
 
-    <main>
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-error">
-                <?php 
-                echo htmlspecialchars($_SESSION['error']);
-                unset($_SESSION['error']);
-                ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <?php 
-                echo htmlspecialchars($_SESSION['success']);
-                unset($_SESSION['success']);
-                ?>
-            </div>
-        <?php endif; ?>
-
-        <?php echo $content; ?>
+    <main class="container fade-in">
+        <?php
+        if (isset($_SESSION['success'])) {
+            echo '<div class="alert alert-success">' . htmlspecialchars($_SESSION['success']) . '</div>';
+            unset($_SESSION['success']);
+        }
+        if (isset($_SESSION['error'])) {
+            echo '<div class="alert alert-error">' . htmlspecialchars($_SESSION['error']) . '</div>';
+            unset($_SESSION['error']);
+        }
+        
+        echo ob_get_clean();
+        ?>
     </main>
 
     <footer>
-        <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. Alle Rechte vorbehalten.</p>
+        <div class="container">
+            <p>&copy; <?php echo date('Y'); ?> Marvin. Alle Rechte vorbehalten.</p>
+        </div>
     </footer>
+
+    <!-- Add our JavaScript file -->
+    <script src="/marvin/assets/js/main.js"></script>
 </body>
 </html> 
