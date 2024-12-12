@@ -16,7 +16,9 @@ if (isLoggedIn()) {
 
 $errors = [];
 $formData = [
-    'username' => $_POST['username'] ?? '',
+    'firstname' => $_POST['firstname'] ?? '',
+    'lastname' => $_POST['lastname'] ?? '',
+    'alias' => $_POST['alias'] ?? '',
     'email' => $_POST['email'] ?? '',
     'password' => '',
     'confirm_password' => ''
@@ -24,19 +26,35 @@ $formData = [
 
 // Handle registration form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $firstname = trim($_POST['firstname'] ?? '');
+    $lastname = trim($_POST['lastname'] ?? '');
+    $alias = trim($_POST['alias'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
     
     // Store form data for repopulating the form
-    $formData['username'] = $username;
+    $formData['firstname'] = $firstname;
+    $formData['lastname'] = $lastname;
+    $formData['alias'] = $alias;
     $formData['email'] = $email;
     
-    // Validate username
-    $usernameValidation = validateUsername($username);
-    if (!$usernameValidation['valid']) {
-        $errors['username'] = $usernameValidation['message'];
+    // Validate firstname
+    $firstnameValidation = validateFirstname($firstname);
+    if (!$firstnameValidation['valid']) {
+        $errors['firstname'] = $firstnameValidation['message'];
+    }
+    
+    // Validate lastname
+    $lastnameValidation = validateLastname($lastname);
+    if (!$lastnameValidation['valid']) {
+        $errors['lastname'] = $lastnameValidation['message'];
+    }
+    
+    // Validate alias
+    $aliasValidation = validateAlias($alias);
+    if (!$aliasValidation['valid']) {
+        $errors['alias'] = $aliasValidation['message'];
     }
     
     // Validate email
@@ -58,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['confirm_password'] = 'Die Passwörter stimmen nicht überein.';
     }
     
-    // Check if username already exists
-    if (empty($errors['username']) && userExists($username)) {
-        $errors['username'] = 'Dieser Benutzername ist bereits vergeben.';
+    // Check if alias already exists
+    if (empty($errors['alias']) && aliasExists($alias)) {
+        $errors['alias'] = 'Dieser Alias ist bereits vergeben.';
     }
     
     // Check if email already exists
@@ -70,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no errors, proceed with registration
     if (empty($errors)) {
-        $result = registerUser($username, $password, $email);
+        $result = registerUser($firstname, $lastname, $alias, $password, $email);
         
         if ($result['success']) {
             showSuccess($result['message']);
@@ -94,14 +112,34 @@ ob_start();
     <?php endif; ?>
     
     <form method="POST" action="" novalidate>
-        <div class="form-group <?php echo !empty($errors['username']) ? 'has-error' : ''; ?>">
-            <label for="username">Benutzername:</label>
-            <input type="text" id="username" name="username" 
-                   value="<?php echo htmlspecialchars($formData['username']); ?>">
-            <?php if (!empty($errors['username'])): ?>
-                <span class="error-message"><?php echo htmlspecialchars($errors['username']); ?></span>
+        <div class="form-group <?php echo !empty($errors['firstname']) ? 'has-error' : ''; ?>">
+            <label for="firstname">Vorname:</label>
+            <input type="text" id="firstname" name="firstname" 
+                   value="<?php echo htmlspecialchars($formData['firstname']); ?>">
+            <?php if (!empty($errors['firstname'])): ?>
+                <span class="error-message"><?php echo htmlspecialchars($errors['firstname']); ?></span>
             <?php endif; ?>
-            <small class="form-text">3-50 Zeichen, nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt.</small>
+            <small class="form-text">3-20 Zeichen, nur Buchstaben und Bindestriche erlaubt.</small>
+        </div>
+
+        <div class="form-group <?php echo !empty($errors['lastname']) ? 'has-error' : ''; ?>">
+            <label for="lastname">Nachname:</label>
+            <input type="text" id="lastname" name="lastname" 
+                   value="<?php echo htmlspecialchars($formData['lastname']); ?>">
+            <?php if (!empty($errors['lastname'])): ?>
+                <span class="error-message"><?php echo htmlspecialchars($errors['lastname']); ?></span>
+            <?php endif; ?>
+            <small class="form-text">3-20 Zeichen, nur Buchstaben und Bindestriche erlaubt.</small>
+        </div>
+
+        <div class="form-group <?php echo !empty($errors['alias']) ? 'has-error' : ''; ?>">
+            <label for="alias">Alias:</label>
+            <input type="text" id="alias" name="alias" 
+                   value="<?php echo htmlspecialchars($formData['alias']); ?>">
+            <?php if (!empty($errors['alias'])): ?>
+                <span class="error-message"><?php echo htmlspecialchars($errors['alias']); ?></span>
+            <?php endif; ?>
+            <small class="form-text">4-8 Zeichen, nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt.</small>
         </div>
 
         <div class="form-group <?php echo !empty($errors['email']) ? 'has-error' : ''; ?>">
@@ -119,7 +157,7 @@ ob_start();
             <?php if (!empty($errors['password'])): ?>
                 <span class="error-message"><?php echo htmlspecialchars($errors['password']); ?></span>
             <?php endif; ?>
-            <small class="form-text">Mindestens 8 Zeichen, ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl.</small>
+            <small class="form-text">Mindestens 6 Zeichen, ein Großbuchstabe, ein Kleinbuchstabe, eine Zahl und ein Sonderzeichen.</small>
         </div>
 
         <div class="form-group <?php echo !empty($errors['confirm_password']) ? 'has-error' : ''; ?>">

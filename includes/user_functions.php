@@ -67,16 +67,37 @@ function emailExists($email) {
 }
 
 /**
+ * Check if an alias already exists
+ * @param string $alias Alias to check
+ * @return bool True if alias exists, false otherwise
+ */
+function aliasExists($alias) {
+    if (empty($alias)) {
+        return false;
+    }
+    
+    $users = readUsers();
+    foreach ($users as $user) {
+        if (isset($user['alias']) && strtolower($user['alias']) === strtolower($alias)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Register a new user
- * @param string $username Username
+ * @param string $firstname First name
+ * @param string $lastname Last name
+ * @param string $alias Alias
  * @param string $password Password
  * @param string $email Email address
  * @return array Result with success status and message
  */
-function registerUser($username, $password, $email) {
+function registerUser($firstname, $lastname, $alias, $password, $email) {
     // Additional validation
-    if (userExists($username)) {
-        return ['success' => false, 'message' => 'Dieser Benutzername ist bereits vergeben.'];
+    if (aliasExists($alias)) {
+        return ['success' => false, 'message' => 'Dieser Alias ist bereits vergeben.'];
     }
     
     if (emailExists($email)) {
@@ -86,7 +107,9 @@ function registerUser($username, $password, $email) {
     // Create user data
     $user = [
         'id' => uniqid(),
-        'username' => $username,
+        'firstname' => $firstname,
+        'lastname' => $lastname,
+        'alias' => $alias,
         'password' => password_hash($password, PASSWORD_DEFAULT),
         'email' => $email,
         'created_at' => date('Y-m-d H:i:s'),
@@ -146,26 +169,47 @@ function getUserByUsername($username) {
 }
 
 /**
+ * Get user by alias
+ * @param string $alias Alias to find
+ * @return array|null User data or null if not found
+ */
+function getUserByAlias($alias) {
+    if (empty($alias)) {
+        return null;
+    }
+    
+    $users = readUsers();
+    foreach ($users as $user) {
+        if (isset($user['alias']) && strtolower($user['alias']) === strtolower($alias)) {
+            return $user;
+        }
+    }
+    return null;
+}
+
+/**
  * Login user
- * @param string $username Username
+ * @param string $alias Alias
  * @param string $password Password
  * @param bool $remember Whether to set remember-me cookie
  * @return array Result with success status and message
  */
-function loginUser($username, $password, $remember = false) {
-    $user = getUserByUsername($username);
+function loginUser($alias, $password, $remember = false) {
+    $user = getUserByAlias($alias);
     
     if (!$user || !isset($user['password'])) {
-        return ['success' => false, 'message' => 'Benutzername oder Passwort ist falsch.'];
+        return ['success' => false, 'message' => 'Alias oder Passwort ist falsch.'];
     }
     
     if (!password_verify($password, $user['password'])) {
-        return ['success' => false, 'message' => 'Benutzername oder Passwort ist falsch.'];
+        return ['success' => false, 'message' => 'Alias oder Passwort ist falsch.'];
     }
     
     // Set session variables
     $_SESSION['user_id'] = $user['id'];
-    $_SESSION['username'] = $user['username'];
+    $_SESSION['alias'] = $user['alias'];
+    $_SESSION['firstname'] = $user['firstname'];
+    $_SESSION['lastname'] = $user['lastname'];
     $_SESSION['is_admin'] = $user['is_admin'] ?? false;
     
     // Handle remember-me functionality
