@@ -248,7 +248,7 @@
                 <li><a href="../index.php">Zurück zur Website</a></li>
                 <li><a href="index.php">Dashboard</a></li>
                 <li><a href="maintenance.php">System Wartung</a></li>
-                <li><a href="../logout.php">Logout (<?php echo htmlspecialchars($_SESSION['username']); ?>)</a></li>
+                <li><a href="../logout.php">Logout (<?php echo isset($_SESSION['alias']) ? htmlspecialchars($_SESSION['alias']) : ''; ?>)</a></li>
             </ul>
         </nav>
     </header>

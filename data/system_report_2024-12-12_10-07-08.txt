@@ -1,0 +1,8 @@
+{
+    "PHP Version": "8.2.4",
+    "Server Software": "Apache\/2.4.56 (Win64) OpenSSL\/1.1.1t PHP\/8.2.4",
+    "Database Type": "Text Files",
+    "Total Posts": 3,
+    "Total Users": 1,
+    "Disk Space Used": "5.75 KB"
+}

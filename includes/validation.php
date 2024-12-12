@@ -212,4 +212,51 @@ function validateAlias($alias) {
     }
     
     return ['valid' => true, 'message' => ''];
+}
+
+/**
+ * Validate email with detailed error messages
+ * @param string $email Email to validate
+ * @return array ['valid' => bool, 'message' => string]
+ */
+function validateEmail($email) {
+    $email = trim($email);
+    
+    if (empty($email)) {
+        return ['valid' => false, 'message' => 'E-Mail-Adresse ist erforderlich.'];
+    }
+    
+    // Check basic email structure
+    if (!preg_match('/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $email)) {
+        if (!strpos($email, '@')) {
+            return ['valid' => false, 'message' => 'E-Mail-Adresse muss ein @-Zeichen enthalten.'];
+        }
+        if (!strpos($email, '.')) {
+            return ['valid' => false, 'message' => 'E-Mail-Adresse muss einen Punkt enthalten.'];
+        }
+        return ['valid' => false, 'message' => 'Ungültiges E-Mail-Format.'];
+    }
+    
+    // Split email into local and domain parts
+    list($local, $domain) = explode('@', $email);
+    
+    // Validate local part
+    if (strlen($local) > 64) {
+        return ['valid' => false, 'message' => 'Der Teil vor dem @-Zeichen darf maximal 64 Zeichen lang sein.'];
+    }
+    
+    if (!preg_match('/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+$/', $local)) {
+        return ['valid' => false, 'message' => 'Der Teil vor dem @-Zeichen enthält ungültige Zeichen.'];
+    }
+    
+    // Validate domain part
+    if (strlen($domain) > 255) {
+        return ['valid' => false, 'message' => 'Der Domain-Teil ist zu lang.'];
+    }
+    
+    if (!preg_match('/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $domain)) {
+        return ['valid' => false, 'message' => 'Ungültige Domain-Format.'];
+    }
+    
+    return ['valid' => true, 'message' => ''];
 } 
