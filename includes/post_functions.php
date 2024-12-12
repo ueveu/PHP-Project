@@ -29,30 +29,42 @@ function createPost($title, $content, $userId, $imagePath = '') {
         return ['success' => false, 'message' => 'Benutzer nicht gefunden.'];
     }
 
+    // Sanitize input data
+    $title = trim(strip_tags($title));
+    $content = trim($content);
+    $author = trim(strip_tags($user['username']));
+    
     $post = [
         'id' => uniqid(),
         'title' => $title,
         'content' => $content,
         'author_id' => $userId,
-        'author_name' => $user['username'],
+        'author_name' => $author,
         'created_at' => date('Y-m-d H:i:s'),
         'image_path' => $imagePath
     ];
 
+    // Create posts directory if it doesn't exist
+    if (!file_exists(dirname(POSTS_FILE))) {
+        mkdir(dirname(POSTS_FILE), 0777, true);
+    }
+
     // Read existing posts
     $posts = [];
     if (file_exists(POSTS_FILE) && filesize(POSTS_FILE) > 0) {
-        $posts = array_filter(
-            file(POSTS_FILE, FILE_IGNORE_NEW_LINES),
-            function($line) { return !empty(trim($line)); }
-        );
+        $lines = file(POSTS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            if (!empty(trim($line))) {
+                $posts[] = $line;
+            }
+        }
     }
 
     // Add new post
-    $posts[] = json_encode($post);
+    $posts[] = json_encode($post, JSON_UNESCAPED_UNICODE);
 
     // Save all posts back to file
-    if (file_put_contents(POSTS_FILE, implode(PHP_EOL, $posts) . PHP_EOL)) {
+    if (file_put_contents(POSTS_FILE, implode(PHP_EOL, array_filter($posts)) . PHP_EOL, LOCK_EX)) {
         return ['success' => true, 'message' => 'Beitrag erfolgreich erstellt!'];
     } else {
         return ['success' => false, 'message' => 'Fehler beim Speichern des Beitrags.'];
@@ -66,34 +78,36 @@ function createPost($title, $content, $userId, $imagePath = '') {
  * @return array Array of posts
  */
 function getAllPosts($limit = null, $offset = 0) {
-    if (!file_exists(POSTS_FILE) || filesize(POSTS_FILE) === 0) {
+    if (!file_exists(POSTS_FILE)) {
         return [];
     }
 
-    // Read and filter out empty lines
-    $posts = array_filter(
-        file(POSTS_FILE, FILE_IGNORE_NEW_LINES),
-        function($line) { return !empty(trim($line)); }
-    );
-
-    $validPosts = [];
-    foreach ($posts as $post) {
-        $postData = json_decode(trim($post), true);
-        if ($postData !== null) {
-            $validPosts[] = $postData;
+    // Read and parse posts
+    $posts = [];
+    if (filesize(POSTS_FILE) > 0) {
+        $lines = file(POSTS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $postData = json_decode(trim($line), true);
+            if ($postData !== null) {
+                // Ensure all required fields exist
+                if (isset($postData['title'], $postData['content'], $postData['author_name'], $postData['created_at'])) {
+                    $posts[] = $postData;
+                }
+            }
         }
     }
 
     // Sort by date (newest first)
-    usort($validPosts, function($a, $b) {
+    usort($posts, function($a, $b) {
         return strtotime($b['created_at']) - strtotime($a['created_at']);
     });
 
+    // Apply pagination
     if ($limit !== null) {
-        return array_slice($validPosts, $offset, $limit);
+        return array_slice($posts, $offset, $limit);
     }
 
-    return $validPosts;
+    return $posts;
 }
 
 /**
@@ -102,9 +116,13 @@ function getAllPosts($limit = null, $offset = 0) {
  * @return array|null The post data or null if not found
  */
 function getPostById($postId) {
+    if (empty($postId)) {
+        return null;
+    }
+    
     $posts = getAllPosts();
     foreach ($posts as $post) {
-        if ($post['id'] === $postId) {
+        if (isset($post['id']) && $post['id'] === $postId) {
             return $post;
         }
     }
@@ -117,6 +135,10 @@ function getPostById($postId) {
  * @return array Array of posts
  */
 function getPostsByUser($userId) {
+    if (empty($userId)) {
+        return [];
+    }
+    
     $allPosts = getAllPosts();
     return array_filter($allPosts, function($post) use ($userId) {
         return isset($post['author_id']) && $post['author_id'] === $userId;

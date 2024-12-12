@@ -8,8 +8,7 @@ require_once 'includes/config.php';
 require_once 'includes/post_functions.php';
 
 // Get current page for pagination
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$page = max(1, $page);
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * ITEMS_PER_PAGE;
 
 // Get posts for current page
@@ -32,19 +31,25 @@ ob_start();
     <?php else: ?>
         <?php foreach ($posts as $post): ?>
             <article class="post">
-                <h2><?php echo htmlspecialchars($post['title']); ?></h2>
+                <h2><?php echo htmlentities($post['title'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?></h2>
                 <div class="post-meta">
-                    <span class="author">Von <?php echo htmlspecialchars($post['author_name']); ?></span>
-                    <span class="date">am <?php echo date('d.m.Y H:i', strtotime($post['created_at'])); ?></span>
+                    <span class="author">Von: <?php echo htmlentities($post['author_name'] ?? 'Unbekannt', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?></span>
+                    <span class="date">am: <?php echo isset($post['created_at']) ? date('d.m.Y H:i', strtotime($post['created_at'])) : ''; ?></span>
                 </div>
                 <div class="post-content">
                     <?php 
-                    // Show first 200 characters of content with ellipsis
-                    $excerpt = substr(strip_tags($post['content']), 0, 200);
-                    echo htmlspecialchars($excerpt) . (strlen($post['content']) > 200 ? '...' : '');
+                    if (isset($post['content'])) {
+                        // Show first 200 characters of content with ellipsis
+                        $content = strip_tags($post['content']);
+                        $excerpt = mb_substr($content, 0, 200, 'UTF-8');
+                        echo htmlentities($excerpt, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        echo (mb_strlen($content, 'UTF-8') > 200) ? '...' : '';
+                    }
                     ?>
                 </div>
-                <a href="post.php?id=<?php echo $post['id']; ?>" class="read-more">Weiterlesen</a>
+                <?php if (isset($post['id'])): ?>
+                    <a href="post.php?id=<?php echo urlencode($post['id']); ?>" class="read-more">Weiterlesen</a>
+                <?php endif; ?>
             </article>
         <?php endforeach; ?>
 
