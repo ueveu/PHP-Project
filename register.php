@@ -19,9 +19,8 @@ $formData = [
     'firstname' => $_POST['firstname'] ?? '',
     'lastname' => $_POST['lastname'] ?? '',
     'alias' => $_POST['alias'] ?? '',
-    'email' => $_POST['email'] ?? '',
     'password' => '',
-    'password_confirm' => ''
+    'confirm_password' => ''
 ];
 
 // Handle registration form submission
@@ -29,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstname = trim($_POST['firstname'] ?? '');
     $lastname = trim($_POST['lastname'] ?? '');
     $alias = trim($_POST['alias'] ?? '');
-    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['password_confirm'] ?? '';
     
@@ -37,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $formData['firstname'] = $firstname;
     $formData['lastname'] = $lastname;
     $formData['alias'] = $alias;
-    $formData['email'] = $email;
     
     // Validate firstname
     $firstnameValidation = validateFirstname($firstname);
@@ -55,12 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $aliasValidation = validateAlias($alias);
     if (!$aliasValidation['valid']) {
         $errors['alias'] = $aliasValidation['message'];
-    }
-    
-    // Validate email
-    $emailValidation = validateEmail($email);
-    if (!$emailValidation['valid']) {
-        $errors['email'] = $emailValidation['message'];
     }
     
     // Validate password
@@ -81,14 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['alias'] = 'Dieser Alias ist bereits vergeben.';
     }
     
-    // Check if email already exists
-    if (empty($errors['email']) && emailExists($email)) {
-        $errors['email'] = 'Diese E-Mail-Adresse wird bereits verwendet.';
-    }
-    
     // If no errors, proceed with registration
     if (empty($errors)) {
-        $result = registerUser($firstname, $lastname, $alias, $password, $email);
+        $result = registerUser($firstname, $lastname, $alias, $password);
         
         if ($result['success']) {
             showSuccess($result['message']);
@@ -137,14 +123,6 @@ ob_start();
                    data-validate="alias">
             <div class="validation-feedback"></div>
             <small class="form-text">4-8 Zeichen, nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt.</small>
-        </div>
-
-        <div class="form-group">
-            <label for="email">E-Mail:</label>
-            <input type="email" id="email" name="email" 
-                   value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>"
-                   data-validate="email">
-            <div class="validation-feedback"></div>
         </div>
 
         <div class="form-group">
@@ -283,12 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 pattern: 'Alias darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten.'
             }
         },
-        email: {
-            pattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-            messages: {
-                pattern: 'Bitte geben Sie eine gültige E-Mail-Adresse ein.'
-            }
-        },
         password: {
             minLength: 6,
             pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).+$/,
@@ -306,30 +278,29 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const form = document.querySelector('form');
-    const inputs = document.querySelectorAll('[data-validate]');
+    const submitButton = form.querySelector('button[type="submit"]');
 
     // Add input event listeners for live validation
-    inputs.forEach(input => {
+    document.querySelectorAll('[data-validate]').forEach(input => {
         input.addEventListener('input', function() {
             validateField(this);
+            checkFormValidity();
         });
     });
 
     // Add form submit handler
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Validate all fields
         let isValid = true;
-        inputs.forEach(input => {
+        
+        // Validate all fields before submission
+        document.querySelectorAll('[data-validate]').forEach(input => {
             if (!validateField(input)) {
                 isValid = false;
             }
         });
 
-        // If all validations pass, submit the form
-        if (isValid) {
-            this.submit();
+        if (!isValid) {
+            e.preventDefault();
         }
     });
 
@@ -383,6 +354,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return isValid;
     }
+
+    function checkFormValidity() {
+        let isValid = true;
+        document.querySelectorAll('[data-validate]').forEach(input => {
+            if (input.classList.contains('is-invalid') || !input.value.trim()) {
+                isValid = false;
+            }
+        });
+        submitButton.disabled = !isValid;
+    }
+
+    // Initial form validation check
+    checkFormValidity();
 });
 </script>
 

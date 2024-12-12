@@ -219,30 +219,29 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const form = document.querySelector('form');
-    const inputs = document.querySelectorAll('[data-validate]');
+    const submitButton = form.querySelector('button[type="submit"]');
 
     // Add input event listeners for live validation
-    inputs.forEach(input => {
+    document.querySelectorAll('[data-validate]').forEach(input => {
         input.addEventListener('input', function() {
             validateField(this);
+            checkFormValidity();
         });
     });
 
     // Add form submit handler
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Validate all fields
         let isValid = true;
-        inputs.forEach(input => {
+        
+        // Validate all fields before submission
+        document.querySelectorAll('[data-validate]').forEach(input => {
             if (!validateField(input)) {
                 isValid = false;
             }
         });
 
-        // If all validations pass, submit the form
-        if (isValid) {
-            this.submit();
+        if (!isValid) {
+            e.preventDefault();
         }
     });
 
@@ -280,6 +279,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return isValid;
     }
+
+    function checkFormValidity() {
+        let isValid = true;
+        document.querySelectorAll('[data-validate]').forEach(input => {
+            if (input.classList.contains('is-invalid') || !input.value.trim()) {
+                isValid = false;
+            }
+        });
+        submitButton.disabled = !isValid;
+    }
+
+    // Initial form validation check
+    checkFormValidity();
 });
 </script>
 

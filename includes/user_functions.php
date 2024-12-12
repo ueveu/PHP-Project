@@ -11,20 +11,18 @@ require_once 'config.php';
  * @return array Array of valid user records
  */
 function readUsers() {
-    if (!file_exists(USERS_FILE)) {
-        return [];
-    }
-    
     $users = [];
-    $lines = file(USERS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
-    
-    foreach ($lines as $line) {
-        $userData = json_decode($line, true);
-        if ($userData && isset($userData['username']) && isset($userData['id'])) {
-            $users[] = $userData;
+    if (file_exists(USERS_FILE)) {
+        $lines = file(USERS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines) {
+            foreach ($lines as $line) {
+                $user = json_decode($line, true);
+                if ($user) {
+                    $users[] = $user;
+                }
+            }
         }
     }
-    
     return $users;
 }
 
@@ -72,13 +70,9 @@ function emailExists($email) {
  * @return bool True if alias exists, false otherwise
  */
 function aliasExists($alias) {
-    if (empty($alias)) {
-        return false;
-    }
-    
     $users = readUsers();
     foreach ($users as $user) {
-        if (isset($user['alias']) && strtolower($user['alias']) === strtolower($alias)) {
+        if ($user['alias'] === $alias) {
             return true;
         }
     }
@@ -87,21 +81,16 @@ function aliasExists($alias) {
 
 /**
  * Register a new user
- * @param string $firstname First name
- * @param string $lastname Last name
- * @param string $alias Alias
- * @param string $password Password
- * @param string $email Email address
- * @return array Result with success status and message
+ * @param string $firstname User's first name
+ * @param string $lastname User's last name
+ * @param string $alias User's alias
+ * @param string $password User's password
+ * @return array ['success' => bool, 'message' => string]
  */
-function registerUser($firstname, $lastname, $alias, $password, $email) {
+function registerUser($firstname, $lastname, $alias, $password) {
     // Additional validation
     if (aliasExists($alias)) {
         return ['success' => false, 'message' => 'Dieser Alias ist bereits vergeben.'];
-    }
-    
-    if (emailExists($email)) {
-        return ['success' => false, 'message' => 'Diese E-Mail-Adresse wird bereits verwendet.'];
     }
     
     // Create user data
@@ -111,7 +100,6 @@ function registerUser($firstname, $lastname, $alias, $password, $email) {
         'lastname' => $lastname,
         'alias' => $alias,
         'password' => password_hash($password, PASSWORD_DEFAULT),
-        'email' => $email,
         'created_at' => date('Y-m-d H:i:s'),
         'is_admin' => false // Default to non-admin
     ];
@@ -122,10 +110,23 @@ function registerUser($firstname, $lastname, $alias, $password, $email) {
         $user['is_admin'] = true;
     }
     
+    // Ensure data directory exists
+    if (!file_exists(DATA_PATH)) {
+        mkdir(DATA_PATH, 0777, true);
+    }
+    
+    // Ensure users file exists
+    if (!file_exists(USERS_FILE)) {
+        file_put_contents(USERS_FILE, '');
+    }
+    
     // Save user to file
-    if (file_put_contents(USERS_FILE, json_encode($user) . PHP_EOL, FILE_APPEND)) {
+    $success = file_put_contents(USERS_FILE, json_encode($user) . PHP_EOL, FILE_APPEND);
+    
+    if ($success !== false) {
         return ['success' => true, 'message' => 'Registrierung erfolgreich! Sie können sich jetzt einloggen.'];
     } else {
+        error_log("Failed to write to users file: " . USERS_FILE);
         return ['success' => false, 'message' => 'Fehler bei der Registrierung. Bitte versuchen Sie es später erneut.'];
     }
 }
@@ -136,13 +137,9 @@ function registerUser($firstname, $lastname, $alias, $password, $email) {
  * @return array|null User data or null if not found
  */
 function getUserById($userId) {
-    if (empty($userId)) {
-        return null;
-    }
-    
     $users = readUsers();
     foreach ($users as $user) {
-        if (isset($user['id']) && $user['id'] === $userId) {
+        if ($user['id'] === $userId) {
             return $user;
         }
     }
@@ -174,13 +171,9 @@ function getUserByUsername($username) {
  * @return array|null User data or null if not found
  */
 function getUserByAlias($alias) {
-    if (empty($alias)) {
-        return null;
-    }
-    
     $users = readUsers();
     foreach ($users as $user) {
-        if (isset($user['alias']) && strtolower($user['alias']) === strtolower($alias)) {
+        if ($user['alias'] === $alias) {
             return $user;
         }
     }
@@ -189,46 +182,33 @@ function getUserByAlias($alias) {
 
 /**
  * Login user
- * @param string $alias Alias
- * @param string $password Password
- * @param bool $remember Whether to set remember-me cookie
- * @return array Result with success status and message
+ * @param string $alias User's alias
+ * @param string $password User's password
+ * @param bool $remember Whether to set remember cookie
+ * @return array ['success' => bool, 'message' => string]
  */
 function loginUser($alias, $password, $remember = false) {
-    $user = getUserByAlias($alias);
-    
-    if (!$user || !isset($user['password'])) {
-        return ['success' => false, 'message' => 'Alias oder Passwort ist falsch.'];
+    $users = readUsers();
+    foreach ($users as $user) {
+        if ($user['alias'] === $alias) {
+            if (password_verify($password, $user['password'])) {
+                // Set session
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['alias'] = $user['alias'];
+                $_SESSION['is_admin'] = $user['is_admin'];
+                
+                // Set remember cookie if requested
+                if ($remember) {
+                    $token = bin2hex(random_bytes(32));
+                    setcookie('remember_token', $token, time() + (86400 * 30), '/'); // 30 days
+                }
+                
+                return ['success' => true, 'message' => 'Login erfolgreich!'];
+            }
+            return ['success' => false, 'message' => 'Falsches Passwort.'];
+        }
     }
-    
-    if (!password_verify($password, $user['password'])) {
-        return ['success' => false, 'message' => 'Alias oder Passwort ist falsch.'];
-    }
-    
-    // Set session variables
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['alias'] = $user['alias'];
-    $_SESSION['firstname'] = $user['firstname'];
-    $_SESSION['lastname'] = $user['lastname'];
-    $_SESSION['is_admin'] = $user['is_admin'] ?? false;
-    
-    // Handle remember-me functionality
-    if ($remember) {
-        $token = bin2hex(random_bytes(32));
-        $expires = time() + (30 * 24 * 60 * 60); // 30 days
-        
-        // Save token in user's data
-        $user['remember_token'] = [
-            'token' => $token,
-            'expires' => $expires
-        ];
-        updateUser($user);
-        
-        // Set cookie
-        setcookie('remember_token', $token, $expires, '/', '', true, true);
-    }
-    
-    return ['success' => true, 'message' => 'Login erfolgreich!'];
+    return ['success' => false, 'message' => 'Benutzer nicht gefunden.'];
 }
 
 /**
