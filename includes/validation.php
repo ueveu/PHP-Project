@@ -200,8 +200,8 @@ function validateFirstname($firstname) {
         return ['valid' => false, 'message' => 'Vorname darf maximal 20 Zeichen lang sein.'];
     }
     
-    if (!preg_match('/^[a-zA-ZäöüÄÖÜß\s-]+$/', $firstname)) {
-        return ['valid' => false, 'message' => 'Vorname darf nur Buchstaben, Leerzeichen und Bindestriche enthalten.'];
+    if (!preg_match('/^[a-zA-ZäöüÄÖÜß-]+$/', $firstname)) {
+        return ['valid' => false, 'message' => 'Vorname darf nur Buchstaben und Bindestriche enthalten (keine Leerzeichen).'];
     }
     
     return ['valid' => true, 'message' => ''];
