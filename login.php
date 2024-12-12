@@ -16,23 +16,23 @@ if (isLoggedIn()) {
 
 $errors = [];
 $formData = [
-    'username' => $_POST['username'] ?? '',
+    'alias' => $_POST['alias'] ?? '',
 ];
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username'] ?? '');
+    $alias = trim($_POST['alias'] ?? '');
     $password = $_POST['password'] ?? '';
     $remember = isset($_POST['remember']);
     
-    // Store username for form repopulation
-    $formData['username'] = $username;
+    // Store alias for form repopulation
+    $formData['alias'] = $alias;
     
-    // Validate username
-    if (empty($username)) {
-        $errors['username'] = 'Bitte geben Sie Ihren Benutzernamen ein.';
-    } elseif (strlen($username) > 50) {
-        $errors['username'] = 'Benutzername ist zu lang.';
+    // Validate alias
+    if (empty($alias)) {
+        $errors['alias'] = 'Bitte geben Sie Ihren Alias ein.';
+    } elseif (strlen($alias) < 4 || strlen($alias) > 8) {
+        $errors['alias'] = 'Alias muss zwischen 4 und 8 Zeichen lang sein.';
     }
     
     // Validate password
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no validation errors, attempt login
     if (empty($errors)) {
-        $result = loginUser($username, $password, $remember);
+        $result = loginUser($alias, $password, $remember);
         
         if ($result['success']) {
             showSuccess($result['message']);
@@ -70,13 +70,14 @@ ob_start();
     <?php endif; ?>
     
     <form method="POST" action="" novalidate>
-        <div class="form-group <?php echo !empty($errors['username']) ? 'has-error' : ''; ?>">
-            <label for="username">Benutzername:</label>
-            <input type="text" id="username" name="username" 
-                   value="<?php echo htmlspecialchars($formData['username']); ?>">
-            <?php if (!empty($errors['username'])): ?>
-                <span class="error-message"><?php echo htmlspecialchars($errors['username']); ?></span>
+        <div class="form-group <?php echo !empty($errors['alias']) ? 'has-error' : ''; ?>">
+            <label for="alias">Alias:</label>
+            <input type="text" id="alias" name="alias" 
+                   value="<?php echo htmlspecialchars($formData['alias']); ?>">
+            <?php if (!empty($errors['alias'])): ?>
+                <span class="error-message"><?php echo htmlspecialchars($errors['alias']); ?></span>
             <?php endif; ?>
+            <small class="form-text">Ihr Alias ist 4-8 Zeichen lang.</small>
         </div>
 
         <div class="form-group <?php echo !empty($errors['password']) ? 'has-error' : ''; ?>">
@@ -109,6 +110,13 @@ ob_start();
 
 .error-message {
     color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.form-text {
+    color: #6c757d;
     font-size: 0.875rem;
     margin-top: 0.25rem;
     display: block;

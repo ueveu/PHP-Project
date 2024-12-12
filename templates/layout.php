@@ -22,7 +22,7 @@
                     <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin']): ?>
                         <li><a href="admin/">Admin</a></li>
                     <?php endif; ?>
-                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION['username']); ?>)</a></li>
+                    <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION['firstname']); ?> - <?php echo htmlspecialchars($_SESSION['alias']); ?>)</a></li>
                 <?php else: ?>
                     <li><a href="login.php">Login</a></li>
                     <li><a href="register.php">Registrieren</a></li>
