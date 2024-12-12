@@ -75,15 +75,34 @@ Alternativ können Sie sich mit diesen Zugangsdaten einloggen:
 
 ```
 marvin/
-├── admin/           # Admin-Bereich
-├── assets/         # CSS, JavaScript, Bilder
-├── data/           # Datenspeicherung (.txt Dateien)
-│   ├── users.txt         # Benutzerdaten
-│   ├── posts.txt         # Blog-Beiträge
-│   └── contact_messages.txt  # Kontaktanfragen
-├── includes/       # PHP-Funktionen
-├── templates/      # HTML-Templates
-└── index.php       # Startseite
+├── admin/                 # Admin-Bereich
+│   ├── assets/           # Admin-spezifische Assets
+│   │   └── css/         # Admin-CSS-Dateien
+│   ├── templates/       # Admin-Templates
+│   ├── index.php        # Admin-Dashboard
+│   └── maintenance.php  # Wartungsfunktionen
+├── assets/               # Frontend Assets
+│   ├── css/            # Stylesheet-Dateien
+│   ├── js/             # JavaScript-Dateien
+│   └── images/         # Bilder und Uploads
+│       └── gallery/    # Galerie-Bilder
+├── data/                 # Datenspeicherung (.txt)
+├── includes/             # PHP-Funktionen
+│   ├── config.php      # Konfigurationsdatei
+│   ├── post_functions.php    # Blog-Funktionen
+│   ├── user_functions.php    # Benutzer-Funktionen
+│   └── validation.php   # Eingabevalidierung
+├── templates/            # Frontend-Templates
+│   └── layout.php      # Haupt-Layout
+├── calculator.php        # Taschenrechner
+├── contact.php          # Kontaktformular
+├── create-post.php      # Beitrag erstellen
+├── gallery.php          # Bildergalerie
+├── index.php            # Startseite/Blog-Übersicht
+├── login.php            # Login-Seite
+├── logout.php           # Logout-Funktion
+├── post.php             # Einzelner Blogbeitrag
+└── register.php         # Registrierung
 ```
 
 ## 🛟 Fehlerbehebung
@@ -189,15 +208,34 @@ Alternatively, you can log in with these credentials:
 
 ```
 marvin/
-├── admin/           # Admin area
-├── assets/         # CSS, JavaScript, images
-├── data/           # Data storage (.txt files)
-│   ├── users.txt         # User data
-│   ├── posts.txt         # Blog posts
-│   └── contact_messages.txt  # Contact requests
-├── includes/       # PHP functions
-├── templates/      # HTML templates
-└── index.php       # Homepage
+├── admin/                 # Admin area
+│   ├── assets/           # Admin-specific assets
+│   │   └── css/         # Admin CSS files
+│   ├── templates/       # Admin templates
+│   ├── index.php        # Admin dashboard
+│   └── maintenance.php  # Maintenance functions
+├── assets/               # Frontend assets
+│   ├── css/            # Stylesheet files
+│   ├── js/             # JavaScript files
+│   └── images/         # Images and uploads
+│       └── gallery/    # Gallery images
+├── data/                 # Data storage (.txt)
+├── includes/             # PHP functions
+│   ├── config.php      # Configuration file
+│   ├── post_functions.php    # Blog functions
+│   ├── user_functions.php    # User functions
+│   └── validation.php   # Input validation
+├── templates/            # Frontend templates
+│   └── layout.php      # Main layout
+├── calculator.php        # Calculator
+├── contact.php          # Contact form
+├── create-post.php      # Create post
+├── gallery.php          # Image gallery
+├── index.php            # Homepage/Blog overview
+├── login.php            # Login page
+├── logout.php           # Logout function
+├── post.php             # Single blog post
+└── register.php         # Registration
 ```
 
 ## 🛟 Troubleshooting
