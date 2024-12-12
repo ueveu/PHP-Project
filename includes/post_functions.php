@@ -32,14 +32,16 @@ function createPost($title, $content, $userId, $imagePath = '') {
     // Sanitize input data
     $title = trim(strip_tags($title));
     $content = trim($content);
-    $author = trim(strip_tags($user['username']));
+    $firstName = trim(strip_tags($user['firstname'] ?? ''));
+    $lastName = trim(strip_tags($user['lastname'] ?? ''));
     
     $post = [
         'id' => uniqid(),
         'title' => $title,
         'content' => $content,
         'author_id' => $userId,
-        'author_name' => $author,
+        'author_firstname' => $firstName,
+        'author_lastname' => $lastName,
         'created_at' => date('Y-m-d H:i:s'),
         'image_path' => $imagePath
     ];
@@ -90,7 +92,9 @@ function getAllPosts($limit = null, $offset = 0) {
             $postData = json_decode(trim($line), true);
             if ($postData !== null) {
                 // Ensure all required fields exist
-                if (isset($postData['title'], $postData['content'], $postData['author_name'], $postData['created_at'])) {
+                if (isset($postData['title'], $postData['content'], 
+                    $postData['author_firstname'], $postData['author_lastname'], 
+                    $postData['created_at'])) {
                     $posts[] = $postData;
                 }
             }

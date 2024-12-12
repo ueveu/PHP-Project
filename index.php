@@ -33,7 +33,11 @@ ob_start();
             <article class="post">
                 <h2><?php echo htmlentities($post['title'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?></h2>
                 <div class="post-meta">
-                    <span class="author">Von: <?php echo htmlentities($post['author_name'] ?? 'Unbekannt', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?></span>
+                    <span class="author">Von: <?php 
+                        $firstName = htmlentities($post['author_firstname'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $lastName = htmlentities($post['author_lastname'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        echo $firstName && $lastName ? "$firstName $lastName" : 'Unbekannt';
+                    ?></span>
                     <span class="date">am: <?php echo isset($post['created_at']) ? date('d.m.Y H:i', strtotime($post['created_at'])) : ''; ?></span>
                 </div>
                 <div class="post-content">
