@@ -21,7 +21,7 @@ $formData = [
     'alias' => $_POST['alias'] ?? '',
     'email' => $_POST['email'] ?? '',
     'password' => '',
-    'confirm_password' => ''
+    'password_confirm' => ''
 ];
 
 // Handle registration form submission
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $alias = trim($_POST['alias'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
+    $confirmPassword = $_POST['password_confirm'] ?? '';
     
     // Store form data for repopulating the form
     $formData['firstname'] = $firstname;
@@ -71,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Validate password confirmation
     if (empty($confirmPassword)) {
-        $errors['confirm_password'] = 'Bitte bestätigen Sie Ihr Passwort.';
+        $errors['password_confirm'] = 'Bitte bestätigen Sie Ihr Passwort.';
     } elseif ($password !== $confirmPassword) {
-        $errors['confirm_password'] = 'Die Passwörter stimmen nicht überein.';
+        $errors['password_confirm'] = 'Die Passwörter stimmen nicht überein.';
     }
     
     // Check if alias already exists
