@@ -1,7 +1,7 @@
 <?php
 /**
  * Admin Dashboard
- * Overview of system statistics and user management
+ * Shows statistics and user management
  */
 
 require_once '../includes/config.php';
@@ -13,11 +13,30 @@ if (!isLoggedIn() || !isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
     exit;
 }
 
-// Get statistics
+// Read users and contact messages
 $users = readUsers();
-$posts = file_exists(POSTS_FILE) ? file(POSTS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
-$messages = file_exists(DATA_PATH . 'contact_messages.txt') ? 
-    file(DATA_PATH . 'contact_messages.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+$messages = [];
+if (file_exists(DATA_PATH . 'contact_messages.txt')) {
+    $messageLines = file(DATA_PATH . 'contact_messages.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($messageLines as $line) {
+        $message = json_decode($line, true);
+        if ($message) {
+            $messages[] = $message;
+        }
+    }
+}
+
+// Read blog posts
+$posts = [];
+if (file_exists(POSTS_FILE)) {
+    $postLines = file(POSTS_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($postLines as $line) {
+        $post = json_decode($line, true);
+        if ($post) {
+            $posts[] = $post;
+        }
+    }
+}
 
 $pageTitle = 'Admin Dashboard';
 ob_start();
@@ -27,20 +46,27 @@ ob_start();
     <h1>Admin Dashboard</h1>
 
     <div class="stats-grid">
-        <!-- Statistics Box -->
         <div class="stat-box">
             <h3>Gesamtstatistik</h3>
             <ul>
-                <li>Anzahl Beiträge: <?php echo count($posts); ?></li>
-                <li>Anzahl Benutzer: <?php echo count($users); ?></li>
-                <li>Anzahl Nachrichten: <?php echo count($messages); ?></li>
+                <li>
+                    <span>Anzahl Beiträge:</span>
+                    <span><?php echo count($posts); ?></span>
+                </li>
+                <li>
+                    <span>Anzahl Benutzer:</span>
+                    <span><?php echo count($users); ?></span>
+                </li>
+                <li>
+                    <span>Anzahl Nachrichten:</span>
+                    <span><?php echo count($messages); ?></span>
+                </li>
             </ul>
             <div class="admin-actions">
                 <a href="maintenance.php" class="btn btn-primary">System Wartung</a>
             </div>
         </div>
 
-        <!-- Users Overview Box -->
         <div class="stat-box">
             <h3>Benutzerübersicht</h3>
             <div class="table-container">
@@ -55,12 +81,11 @@ ob_start();
                     </thead>
                     <tbody>
                         <?php foreach ($users as $user): ?>
-                            <?php $userData = json_decode($user, true); ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($userData['firstname']); ?></td>
-                                <td><?php echo htmlspecialchars($userData['lastname']); ?></td>
-                                <td><?php echo htmlspecialchars($userData['alias']); ?></td>
-                                <td><?php echo $userData['is_admin'] ? 'Admin' : 'User'; ?></td>
+                                <td><?php echo htmlspecialchars($user['firstname']); ?></td>
+                                <td><?php echo htmlspecialchars($user['lastname']); ?></td>
+                                <td><?php echo htmlspecialchars($user['alias']); ?></td>
+                                <td><?php echo $user['is_admin'] ? 'Admin' : 'User'; ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -68,7 +93,6 @@ ob_start();
             </div>
         </div>
 
-        <!-- Latest Messages Box -->
         <div class="stat-box">
             <h3>Letzte Kontaktanfragen</h3>
             <div class="table-container">
@@ -76,26 +100,21 @@ ob_start();
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Nachricht</th>
+                            <th>E-Mail</th>
                             <th>Datum</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php 
-                        $latestMessages = array_slice(array_reverse($messages), 0, 5);
-                        foreach ($latestMessages as $message):
-                            $messageData = json_decode($message, true);
-                            if ($messageData):
+                        $recentMessages = array_slice(array_reverse($messages), 0, 5);
+                        foreach ($recentMessages as $message): 
                         ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($messageData['name']); ?></td>
-                                <td><?php echo htmlspecialchars(substr($messageData['message'], 0, 50)) . '...'; ?></td>
-                                <td><?php echo htmlspecialchars($messageData['date']); ?></td>
+                                <td><?php echo htmlspecialchars($message['name']); ?></td>
+                                <td><?php echo htmlspecialchars($message['email']); ?></td>
+                                <td><?php echo htmlspecialchars($message['date']); ?></td>
                             </tr>
-                        <?php 
-                            endif;
-                        endforeach; 
-                        ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

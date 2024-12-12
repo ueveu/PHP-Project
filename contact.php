@@ -32,9 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // Validate email
-    $emailValidation = validateEmail($email);
-    if (!$emailValidation['valid']) {
-        $errors['email'] = $emailValidation['message'];
+    if (empty(trim($email))) {
+        $errors['email'] = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors['email'] = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
     }
     
     // Validate message
