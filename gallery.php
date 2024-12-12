@@ -33,11 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
                 // Save image info to file
                 $imageInfo = [
                     'filename' => $filename,
-                    'uploaded_by' => $_SESSION['username'],
+                    'uploaded_by' => isset($_SESSION['username']) ? $_SESSION['username'] : 'anonymous',
                     'upload_date' => date('Y-m-d H:i:s')
                 ];
                 
                 $galleryFile = DATA_PATH . 'gallery.txt';
+                if (!file_exists($galleryFile)) {
+                    touch($galleryFile);
+                }
                 file_put_contents($galleryFile, json_encode($imageInfo) . PHP_EOL, FILE_APPEND);
                 
                 $uploadSuccess = true;
@@ -52,17 +55,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
 // Get all images
 $images = [];
 $galleryFile = DATA_PATH . 'gallery.txt';
-if (file_exists($galleryFile)) {
-    $lines = file($galleryFile, FILE_IGNORE_NEW_LINES);
-    foreach ($lines as $line) {
-        $images[] = json_decode($line, true);
+if (file_exists($galleryFile) && filesize($galleryFile) > 0) {
+    $lines = file($galleryFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines) {
+        foreach ($lines as $line) {
+            $imageData = json_decode($line, true);
+            if ($imageData) {
+                $images[] = $imageData;
+            }
+        }
     }
 }
 
 // Sort images by upload date (newest first)
-usort($images, function($a, $b) {
-    return strtotime($b['upload_date']) - strtotime($a['upload_date']);
-});
+if (!empty($images)) {
+    usort($images, function($a, $b) {
+        return isset($a['upload_date'], $b['upload_date']) 
+            ? strtotime($b['upload_date']) - strtotime($a['upload_date'])
+            : 0;
+    });
+}
 
 $pageTitle = 'Bildergalerie';
 ob_start();
@@ -91,11 +103,11 @@ ob_start();
         <?php else: ?>
             <?php foreach ($images as $image): ?>
                 <div class="gallery-item">
-                    <img src="assets/images/gallery/<?php echo htmlspecialchars($image['filename']); ?>" 
+                    <img src="assets/images/gallery/<?php echo htmlspecialchars($image['filename'] ?? ''); ?>" 
                          alt="Galeriebild">
                     <div class="image-info">
-                        <span class="uploader">Von: <?php echo htmlspecialchars($image['uploaded_by']); ?></span>
-                        <span class="date">Am: <?php echo date('d.m.Y', strtotime($image['upload_date'])); ?></span>
+                        <span class="uploader">Von: <?php echo htmlspecialchars($image['uploaded_by'] ?? 'Unbekannt'); ?></span>
+                        <span class="date">Am: <?php echo isset($image['upload_date']) ? date('d.m.Y', strtotime($image['upload_date'])) : ''; ?></span>
                     </div>
                 </div>
             <?php endforeach; ?>
