@@ -123,7 +123,7 @@ ob_start();
 }
 
 .auth-form {
-    max-width: 400px;
+    max-width: 500px;
     margin: 2rem auto;
     padding: 2rem;
     background: #fff;
@@ -153,17 +153,17 @@ ob_start();
 .remember-me {
     display: flex;
     align-items: center;
+    white-space: nowrap;
 }
 
 .remember-me label {
     display: flex;
     align-items: center;
-    margin: 0;
-    cursor: pointer;
+    gap: 0.5rem;
 }
 
 .remember-me input[type="checkbox"] {
-    margin-right: 0.5rem;
+    margin: 0;
 }
 
 .auth-links {

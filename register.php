@@ -196,7 +196,7 @@ ob_start();
 }
 
 .auth-form {
-    max-width: 400px;
+    max-width: 800px;
     margin: 2rem auto;
     padding: 2rem;
     background: #fff;
