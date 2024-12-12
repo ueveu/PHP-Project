@@ -25,27 +25,32 @@ if (!$post) {
     exit;
 }
 
-$pageTitle = $post['title'];
+$pageTitle = htmlentities($post['title'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
 ob_start();
 ?>
 
 <div class="post-detail">
     <article class="post">
-        <h1><?php echo htmlspecialchars($post['title']); ?></h1>
+        <h1><?php echo htmlentities($post['title'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?></h1>
         
         <div class="post-meta">
-            <span class="author">Von <?php echo htmlspecialchars($post['author_name']); ?></span>
-            <span class="date">am <?php echo date('d.m.Y H:i', strtotime($post['created_at'])); ?></span>
+            <span class="author">Von: <?php 
+                $firstName = htmlentities($post['author_firstname'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $lastName = htmlentities($post['author_lastname'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                echo $firstName && $lastName ? "$firstName $lastName" : 'Unbekannt';
+            ?></span>
+            <span class="date">am: <?php echo isset($post['created_at']) ? date('d.m.Y H:i', strtotime($post['created_at'])) : ''; ?></span>
         </div>
         
         <?php if (!empty($post['image_path'])): ?>
         <div class="post-image">
-            <img src="<?php echo htmlspecialchars($post['image_path']); ?>" alt="Beitragsbild">
+            <img src="<?php echo htmlentities($post['image_path'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8'); ?>" 
+                 alt="Beitragsbild">
         </div>
         <?php endif; ?>
         
         <div class="post-content">
-            <?php echo nl2br(htmlspecialchars($post['content'])); ?>
+            <?php echo nl2br(htmlentities($post['content'] ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8')); ?>
         </div>
     </article>
     
@@ -63,12 +68,25 @@ ob_start();
 
 .post-detail .post {
     padding: 2rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .post-detail h1 {
     font-size: 2rem;
     color: #2c3e50;
     margin-bottom: 1rem;
+}
+
+.post-meta {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.post-meta span {
+    margin-right: 1rem;
 }
 
 .post-image {
@@ -81,9 +99,28 @@ ob_start();
     border-radius: 8px;
 }
 
+.post-content {
+    line-height: 1.6;
+    color: #333;
+}
+
 .post-navigation {
     margin-top: 2rem;
     text-align: center;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.btn-primary:hover {
+    background: #2980b9;
 }
 </style>
 
